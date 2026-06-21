@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { connectDB } from './db.js';
 import { User } from './models/User.js';
 import { FoodItem } from './models/FoodItem.js';
@@ -428,6 +430,17 @@ app.delete('/api/logs/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../', 'dist', 'index.html'));
+  });
+}
 
 // Start Server
 const PORT = process.env.PORT || 5000;
